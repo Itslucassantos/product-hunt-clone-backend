@@ -1,10 +1,10 @@
 import { InvalidTopicOrderError } from '../../../domain/errors/invalid-topic-order-error';
 import { requireAdmin } from '../../policies/require-admin';
-import { ReorderTopicsInput, ReorderTopicsUseCase } from '../../ports/in/reorder-topics';
-import { CacheStore } from '../../ports/out/cache-store';
-import { Clock } from '../../ports/out/clock';
-import { TopicRepository } from '../../ports/out/topic-repository';
-import { UnitOfWork } from '../../ports/out/unit-of-work';
+import { ReorderTopicsInput, ReorderTopicsUseCase } from '../../ports/in/topics/reorder-topics';
+import { CacheStore } from '../../ports/out/shared/cache-store';
+import { Clock } from '../../ports/out/shared/clock';
+import { TopicRepository } from '../../ports/out/topics/topic-repository';
+import { UnitOfWork } from '../../ports/out/shared/unit-of-work';
 
 export class ReorderTopics implements ReorderTopicsUseCase {
   constructor(

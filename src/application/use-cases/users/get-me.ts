@@ -1,6 +1,6 @@
 import { UserNotFoundError } from '../../../domain/errors/user-not-found-error';
-import { GetMeInput, GetMeUseCase, MeOutput } from '../../ports/in/get-me';
-import { UserRepository } from '../../ports/out/user-repository';
+import { GetMeInput, GetMeUseCase, MeOutput } from '../../ports/in/users/get-me';
+import { UserRepository } from '../../ports/out/users/user-repository';
 
 export class GetMe implements GetMeUseCase {
   constructor(private readonly users: UserRepository) {}

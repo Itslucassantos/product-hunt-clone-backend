@@ -1,4 +1,4 @@
-import { Role } from '../../../domain/value-objects/role';
+import { Role } from '../../../../domain/value-objects/role';
 
 export interface GetMeInput {
   userId: string;

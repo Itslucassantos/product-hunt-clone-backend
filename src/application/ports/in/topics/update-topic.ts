@@ -1,5 +1,5 @@
-import { TopicTranslations } from '../../../domain/entities/topic';
-import { Actor } from './actor';
+import { TopicTranslations } from '../../../../domain/entities/topic';
+import { Actor } from '../shared/actor';
 
 export interface UpdateTopicInput {
   actor: Actor;

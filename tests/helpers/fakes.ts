@@ -1,7 +1,7 @@
-import { TopicUsageQueries } from '../../src/application/ports/out/topic-usage-queries';
+import { TopicUsageQueries } from '../../src/application/ports/out/topics/topic-usage-queries';
 import { BlockingProduct } from '../../src/domain/errors/topic-in-use-error';
-import { Clock } from '../../src/application/ports/out/clock';
-import { IdGenerator } from '../../src/application/ports/out/id-generator';
+import { Clock } from '../../src/application/ports/out/shared/clock';
+import { IdGenerator } from '../../src/application/ports/out/shared/id-generator';
 
 export class FakeClock implements Clock {
   constructor(private current: Date = new Date('2026-01-01T00:00:00Z')) {}

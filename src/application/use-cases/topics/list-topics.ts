@@ -1,5 +1,5 @@
-import { ListTopicsInput, ListTopicsUseCase } from '../../ports/in/list-topics';
-import { TopicQueries } from '../../ports/out/topic-queries';
+import { ListTopicsInput, ListTopicsUseCase } from '../../ports/in/topics/list-topics';
+import { TopicQueries } from '../../ports/out/topics/topic-queries';
 import { TopicItem } from '../../read-models/topic-item';
 
 export class ListTopics implements ListTopicsUseCase {

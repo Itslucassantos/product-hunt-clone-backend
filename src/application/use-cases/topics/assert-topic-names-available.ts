@@ -1,7 +1,7 @@
 import { TopicTranslations } from '../../../domain/entities/topic';
 import { TopicAlreadyExistsError } from '../../../domain/errors/topic-already-exists-error';
 import { LOCALES } from '../../../domain/value-objects/locale';
-import { TopicRepository } from '../../ports/out/topic-repository';
+import { TopicRepository } from '../../ports/out/topics/topic-repository';
 
 export async function assertTopicNamesAvailable(
   topics: TopicRepository,

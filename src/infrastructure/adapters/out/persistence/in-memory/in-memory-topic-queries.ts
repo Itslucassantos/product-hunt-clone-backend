@@ -1,6 +1,6 @@
 import { Locale } from '../../../../../domain/value-objects/locale';
-import { TopicQueries } from '../../../../../application/ports/out/topic-queries';
-import { TopicRepository } from '../../../../../application/ports/out/topic-repository';
+import { TopicQueries } from '../../../../../application/ports/out/topics/topic-queries';
+import { TopicRepository } from '../../../../../application/ports/out/topics/topic-repository';
 import { TopicItem } from '../../../../../application/read-models/topic-item';
 
 export class InMemoryTopicQueries implements TopicQueries {

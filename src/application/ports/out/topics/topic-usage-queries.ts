@@ -1,4 +1,4 @@
-import { BlockingProduct } from '../../../domain/errors/topic-in-use-error';
+import { BlockingProduct } from '../../../../domain/errors/topic-in-use-error';
 
 export interface TopicUsageQueries {
   findProductsOnlyInTopic(
