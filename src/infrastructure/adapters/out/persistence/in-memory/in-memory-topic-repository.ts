@@ -1,7 +1,7 @@
 import { Topic } from '../../../../../domain/entities/topic';
 import { Locale } from '../../../../../domain/value-objects/locale';
 import { Slug } from '../../../../../domain/value-objects/slug';
-import { TopicRepository } from '../../../../../application/ports/out/topic-repository';
+import { TopicRepository } from '../../../../../application/ports/out/topics/topic-repository';
 
 const normalize = (name: string) => name.trim().toLowerCase();
 
@@ -25,6 +25,13 @@ export class InMemoryTopicRepository implements TopicRepository {
 
   async findAll(): Promise<Topic[]> {
     return [...this.byId.values()].sort((a, b) => a.position - b.position).map(copy);
+  }
+
+  async findByIds(ids: string[]): Promise<Topic[]> {
+    return ids.flatMap((id) => {
+      const topic = this.byId.get(id);
+      return topic ? [copy(topic)] : [];
+    });
   }
 
   async save(topic: Topic): Promise<void> {

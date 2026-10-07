@@ -1,8 +1,8 @@
 import { User } from '../../../domain/entities/user';
-import { Clock } from '../../ports/out/clock';
-import { SyncUserInput, SyncUserUseCase } from '../../ports/in/sync-user';
-import { IdGenerator } from '../../ports/out/id-generator';
-import { UserRepository } from '../../ports/out/user-repository';
+import { Clock } from '../../ports/out/shared/clock';
+import { SyncUserInput, SyncUserUseCase } from '../../ports/in/users/sync-user';
+import { IdGenerator } from '../../ports/out/shared/id-generator';
+import { UserRepository } from '../../ports/out/users/user-repository';
 
 export class SyncUser implements SyncUserUseCase {
   constructor(

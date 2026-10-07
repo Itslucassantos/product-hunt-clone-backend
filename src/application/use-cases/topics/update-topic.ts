@@ -1,10 +1,10 @@
 import { TopicNotFoundError } from '../../../domain/errors/topic-not-found-error';
 import { requireAdmin } from '../../policies/require-admin';
-import { UpdateTopicInput, UpdateTopicUseCase } from '../../ports/in/update-topic';
-import { CacheStore } from '../../ports/out/cache-store';
-import { Clock } from '../../ports/out/clock';
-import { TopicRepository } from '../../ports/out/topic-repository';
-import { UnitOfWork } from '../../ports/out/unit-of-work';
+import { UpdateTopicInput, UpdateTopicUseCase } from '../../ports/in/topics/update-topic';
+import { CacheStore } from '../../ports/out/shared/cache-store';
+import { Clock } from '../../ports/out/shared/clock';
+import { TopicRepository } from '../../ports/out/topics/topic-repository';
+import { UnitOfWork } from '../../ports/out/shared/unit-of-work';
 import { assertTopicNamesAvailable } from './assert-topic-names-available';
 
 export class UpdateTopic implements UpdateTopicUseCase {

@@ -1,5 +1,5 @@
 import { User } from '../../../../../domain/entities/user';
-import { UserRepository } from '../../../../../application/ports/out/user-repository';
+import { UserRepository } from '../../../../../application/ports/out/users/user-repository';
 
 export class InMemoryUserRepository implements UserRepository {
   private readonly byId = new Map<string, User>();

@@ -1,4 +1,4 @@
-import { User } from '../../../domain/entities/user';
+import { User } from '../../../../domain/entities/user';
 
 export type SyncUserInput =
   { type: 'upsert'; externalId: string } | { type: 'delete'; externalId: string };

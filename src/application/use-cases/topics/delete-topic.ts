@@ -1,12 +1,12 @@
 import { TopicInUseError } from '../../../domain/errors/topic-in-use-error';
 import { TopicNotFoundError } from '../../../domain/errors/topic-not-found-error';
 import { requireAdmin } from '../../policies/require-admin';
-import { DeleteTopicInput, DeleteTopicUseCase } from '../../ports/in/delete-topic';
-import { CacheStore } from '../../ports/out/cache-store';
-import { Clock } from '../../ports/out/clock';
-import { TopicRepository } from '../../ports/out/topic-repository';
-import { TopicUsageQueries } from '../../ports/out/topic-usage-queries';
-import { UnitOfWork } from '../../ports/out/unit-of-work';
+import { DeleteTopicInput, DeleteTopicUseCase } from '../../ports/in/topics/delete-topic';
+import { CacheStore } from '../../ports/out/shared/cache-store';
+import { Clock } from '../../ports/out/shared/clock';
+import { TopicRepository } from '../../ports/out/topics/topic-repository';
+import { TopicUsageQueries } from '../../ports/out/topics/topic-usage-queries';
+import { UnitOfWork } from '../../ports/out/shared/unit-of-work';
 
 const MAX_BLOCKING_PRODUCTS_REPORTED = 5;
 

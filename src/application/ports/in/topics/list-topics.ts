@@ -1,5 +1,5 @@
-import { Locale } from '../../../domain/value-objects/locale';
-import { TopicItem } from '../../read-models/topic-item';
+import { Locale } from '../../../../domain/value-objects/locale';
+import { TopicItem } from '../../../read-models/topic-item';
 
 export interface ListTopicsInput {
   locale: Locale;

@@ -1,4 +1,4 @@
-import { Actor } from './actor';
+import { Actor } from '../shared/actor';
 
 export interface ReorderTopicsInput {
   actor: Actor;

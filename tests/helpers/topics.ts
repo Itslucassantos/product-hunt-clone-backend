@@ -1,4 +1,4 @@
-import { Actor } from '../../src/application/ports/in/actor';
+import { Actor } from '../../src/application/ports/in/shared/actor';
 import { TopicTranslations } from '../../src/domain/entities/topic';
 
 export const admin: Actor = { id: 'admin-1', role: 'ADMIN' };

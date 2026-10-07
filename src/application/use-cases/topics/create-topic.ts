@@ -5,12 +5,12 @@ import {
   CreateTopicInput,
   CreateTopicOutput,
   CreateTopicUseCase,
-} from '../../ports/in/create-topic';
-import { CacheStore } from '../../ports/out/cache-store';
-import { Clock } from '../../ports/out/clock';
-import { IdGenerator } from '../../ports/out/id-generator';
-import { TopicRepository } from '../../ports/out/topic-repository';
-import { UnitOfWork } from '../../ports/out/unit-of-work';
+} from '../../ports/in/topics/create-topic';
+import { CacheStore } from '../../ports/out/shared/cache-store';
+import { Clock } from '../../ports/out/shared/clock';
+import { IdGenerator } from '../../ports/out/shared/id-generator';
+import { TopicRepository } from '../../ports/out/topics/topic-repository';
+import { UnitOfWork } from '../../ports/out/shared/unit-of-work';
 import { assertTopicNamesAvailable } from './assert-topic-names-available';
 
 export class CreateTopic implements CreateTopicUseCase {

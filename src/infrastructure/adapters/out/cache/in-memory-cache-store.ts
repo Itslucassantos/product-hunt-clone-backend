@@ -1,4 +1,4 @@
-import { CacheStore } from '../../../../application/ports/out/cache-store';
+import { CacheStore } from '../../../../application/ports/out/shared/cache-store';
 
 interface Entry {
   value: unknown;
