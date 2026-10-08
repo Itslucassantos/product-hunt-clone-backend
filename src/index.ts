@@ -1,3 +1,6 @@
 import { startServer } from './main/server';
 
-startServer(Number(process.env.PORT ?? 3333));
+startServer().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -34,6 +34,10 @@ export class InMemoryProductRepository implements ProductRepository {
     this.byId.delete(id);
   }
 
+  countByTopicId(topicId: string): number {
+    return [...this.byId.values()].filter((product) => product.topicIds.includes(topicId)).length;
+  }
+
   async findAll(): Promise<Product[]> {
     return [...this.byId.values()].map(copy);
   }
