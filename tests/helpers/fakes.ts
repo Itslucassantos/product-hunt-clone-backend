@@ -33,7 +33,7 @@ export class FakeTopicUsageQueries implements TopicUsageQueries {
     this.blocking.set(topicId, products);
   }
 
-  async findProductsOnlyInTopic(topicId: string, limit: number) {
+  async findProductsByTopic(topicId: string, limit: number) {
     const all = this.blocking.get(topicId) ?? [];
     return { items: all.slice(0, limit), total: all.length };
   }

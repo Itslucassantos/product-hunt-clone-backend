@@ -4,6 +4,7 @@ import { ForbiddenError } from '../../../../src/domain/errors/forbidden-error';
 import { TopicNotFoundError } from '../../../../src/domain/errors/topic-not-found-error';
 import { ValidationError } from '../../../../src/domain/errors/validation-error';
 import { FakeIdGenerator } from '../../../helpers/fakes';
+import { ProductAlreadyExistsError } from '../../../../src/domain/errors/product-already-exists-error';
 import { buildProductWorld, productInput } from '../../../helpers/products';
 import { regularUser } from '../../../helpers/topics';
 
@@ -47,6 +48,15 @@ describe('CreateProduct', () => {
 
     expect(await world.cache.version('products')).toBe(2);
     expect(await world.cache.version('topics')).toBe(2);
+  });
+
+  it('rejects a duplicate title ignoring case and surrounding spaces', async () => {
+    await create.execute(productInput('Lumen'));
+
+    const promise = create.execute(productInput('  lumen '));
+
+    await expect(promise).rejects.toBeInstanceOf(ProductAlreadyExistsError);
+    await expect(promise).rejects.toMatchObject({ code: 'PRODUCT_ALREADY_EXISTS' });
   });
 
   it('rejects non-admin actors', async () => {

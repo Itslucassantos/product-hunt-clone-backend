@@ -1,4 +1,5 @@
 import { ProductNotFoundError } from '../../../domain/errors/product-not-found-error';
+import { ProductAlreadyExistsError } from '../../../domain/errors/product-already-exists-error';
 import { requireAdmin } from '../../policies/require-admin';
 import { UpdateProductInput, UpdateProductUseCase } from '../../ports/in/products/update-product';
 import { ProductRepository } from '../../ports/out/products/product-repository';
@@ -25,6 +26,13 @@ export class UpdateProduct implements UpdateProductUseCase {
     await this.uow.run(async () => {
       const product = await this.products.findById(input.productId);
       if (!product) throw new ProductNotFoundError(input.productId);
+
+      if (
+        input.title !== undefined &&
+        (await this.products.existsByTitle(input.title, product.id))
+      ) {
+        throw new ProductAlreadyExistsError();
+      }
 
       product.update(
         input.title ?? product.title,

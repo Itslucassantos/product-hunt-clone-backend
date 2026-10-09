@@ -1,4 +1,5 @@
 import { Product } from '../../../domain/entities/product';
+import { ProductAlreadyExistsError } from '../../../domain/errors/product-already-exists-error';
 import { DEFAULT_PRODUCT_STATUS } from '../../../domain/value-objects/product-status';
 import { requireAdmin } from '../../policies/require-admin';
 import {
@@ -40,6 +41,7 @@ export class CreateProduct implements CreateProductUseCase {
     );
 
     await this.uow.run(async () => {
+      if (await this.products.existsByTitle(product.title)) throw new ProductAlreadyExistsError();
       await assertTopicsExist(this.topics, product.topicIds);
       await this.products.save(product);
     });

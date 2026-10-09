@@ -17,6 +17,7 @@ export async function startServer(): Promise<void> {
   const app = createApp({
     logger,
     corsOrigin: container.corsOrigin,
+    filesDir: container.filesDir,
     registerRoutes: registerRoutes(container),
   });
 

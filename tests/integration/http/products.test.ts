@@ -82,6 +82,19 @@ describe('products routes', () => {
     expect(onlyReviewed.body).toMatchObject([{ title: 'Reviewed', review: { rating: 5 } }]);
   });
 
+  it('rejects a product with a duplicate title', async () => {
+    const { http, ai } = await world();
+    await createProduct(http, [ai]);
+
+    const response = await http
+      .post('/api/products')
+      .set('Authorization', ADMIN)
+      .send({ title: 'lumen', description: 'D', url: 'https://x.app', topicIds: [ai] });
+
+    expect(response.status).toBe(409);
+    expect(response.body.error.code).toBe('PRODUCT_ALREADY_EXISTS');
+  });
+
   it('updates and deletes', async () => {
     const { http, ai } = await world();
     const id = await createProduct(http, [ai]);
