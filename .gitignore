@@ -14,9 +14,6 @@ dist/
 .env.*
 !.env.example
 
-# Local image uploads (dev only)
-files/
-
 # Prisma generated client
 src/generated/
 

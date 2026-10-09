@@ -34,6 +34,8 @@ const productSeeds = [
 ];
 
 export async function seed({ useCases }: Container): Promise<void> {
+  if ((await useCases.listTopics.execute({ locale: 'en' })).length > 0) return;
+
   const topicIds: string[] = [];
   for (const topic of topicSeeds) {
     const { id } = await useCases.createTopic.execute({
