@@ -3,6 +3,7 @@ import { UpdateProduct } from '../../../../src/application/use-cases/products/up
 import { ForbiddenError } from '../../../../src/domain/errors/forbidden-error';
 import { ProductNotFoundError } from '../../../../src/domain/errors/product-not-found-error';
 import { TopicNotFoundError } from '../../../../src/domain/errors/topic-not-found-error';
+import { ProductAlreadyExistsError } from '../../../../src/domain/errors/product-already-exists-error';
 import { buildProductWorld, productInput } from '../../../helpers/products';
 import { admin, regularUser } from '../../../helpers/topics';
 
@@ -52,6 +53,20 @@ describe('UpdateProduct', () => {
     await update.execute({ actor: admin, productId: 'p-1', topicIds: ['t-2'] });
 
     expect((await world.products.findById('p-1'))?.topicIds).toEqual(['t-2']);
+  });
+
+  it('rejects renaming to the title of another product', async () => {
+    await world.createProduct.execute(productInput('Orbit'));
+
+    await expect(
+      update.execute({ actor: admin, productId: 'p-1', title: 'orbit' }),
+    ).rejects.toBeInstanceOf(ProductAlreadyExistsError);
+  });
+
+  it('allows keeping the own title', async () => {
+    await update.execute({ actor: admin, productId: 'p-1', title: 'Lumen', description: 'New' });
+
+    expect((await world.products.findById('p-1'))?.description).toBe('New');
   });
 
   it('rejects unknown topics without changing the product', async () => {

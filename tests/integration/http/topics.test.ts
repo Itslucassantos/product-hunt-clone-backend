@@ -100,7 +100,7 @@ describe('topics routes', () => {
     expect(response.body.error.code).toBe('INVALID_TOPIC_ORDER');
   });
 
-  it('blocks deleting a topic that is the only topic of a product', async () => {
+  it('blocks deleting a topic that is used by a product', async () => {
     const { http } = buildTestApp();
     const ai = await createTopic(http, 'AI');
     await createProduct(http, [ai]);

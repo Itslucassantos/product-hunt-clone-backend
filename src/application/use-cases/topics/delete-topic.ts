@@ -26,7 +26,7 @@ export class DeleteTopic implements DeleteTopicUseCase {
       const topic = await this.topics.findById(input.topicId);
       if (!topic) throw new TopicNotFoundError(input.topicId);
 
-      const blocking = await this.usage.findProductsOnlyInTopic(
+      const blocking = await this.usage.findProductsByTopic(
         topic.id,
         MAX_BLOCKING_PRODUCTS_REPORTED,
       );

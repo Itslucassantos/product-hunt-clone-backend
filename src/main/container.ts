@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { CreateProduct } from '../application/use-cases/products/create-product';
 import { DeleteProduct } from '../application/use-cases/products/delete-product';
 import { GetProduct } from '../application/use-cases/products/get-product';
@@ -30,6 +31,7 @@ import { InMemoryUnitOfWork } from '../infrastructure/adapters/out/persistence/i
 import { InMemoryUserRepository } from '../infrastructure/adapters/out/persistence/in-memory/in-memory-user-repository';
 import { InMemoryUserVotesQueries } from '../infrastructure/adapters/out/persistence/in-memory/in-memory-user-votes-queries';
 import { InMemoryVoteRepository } from '../infrastructure/adapters/out/persistence/in-memory/in-memory-vote-repository';
+import { LocalImageStorage } from '../infrastructure/adapters/out/storage/local-image-storage';
 import { InMemoryImageStorage } from '../infrastructure/adapters/out/storage/in-memory-image-storage';
 import type { Env } from '../infrastructure/config/env';
 import { createLogger } from '../infrastructure/logging/logger';
@@ -49,7 +51,12 @@ export function buildContainer(env: Env) {
   const ids = new UuidIdGenerator();
   const cache = new InMemoryCacheStore();
   const uow = new InMemoryUnitOfWork();
-  const storage = new InMemoryImageStorage();
+  const filesDir = resolve(env.FILES_DIR);
+  const publicUrl = env.PUBLIC_URL || `http://localhost:${env.PORT}`;
+  const storage =
+    env.NODE_ENV === 'test'
+      ? new InMemoryImageStorage()
+      : new LocalImageStorage(filesDir, `${publicUrl}/files`);
 
   const products = new InMemoryProductRepository();
   const topics = new InMemoryTopicRepository();
@@ -67,6 +74,7 @@ export function buildContainer(env: Env) {
     auth,
     clerkWebhookSecret: env.CLERK_WEBHOOK_SECRET,
     corsOrigin: env.CORS_ORIGIN,
+    filesDir,
     useCases: {
       listProducts: new ListProducts(productQueries),
       getProduct: new GetProduct(productQueries),

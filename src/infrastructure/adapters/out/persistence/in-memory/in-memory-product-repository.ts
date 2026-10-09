@@ -17,6 +17,8 @@ const copy = (product: Product): Product =>
     product.updatedAt,
   );
 
+const normalize = (value: string): string => value.trim().toLowerCase();
+
 export class InMemoryProductRepository implements ProductRepository {
   private readonly byId = new Map<string, Product>();
 
@@ -32,6 +34,13 @@ export class InMemoryProductRepository implements ProductRepository {
 
   async delete(id: string): Promise<void> {
     this.byId.delete(id);
+  }
+
+  async existsByTitle(title: string, excludeId?: string): Promise<boolean> {
+    const wanted = normalize(title);
+    return [...this.byId.values()].some(
+      (product) => product.id !== excludeId && normalize(product.title) === wanted,
+    );
   }
 
   countByTopicId(topicId: string): number {

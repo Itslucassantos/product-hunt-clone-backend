@@ -69,6 +69,15 @@ describe('DeleteTopic', () => {
     expect(await cache.version('topics')).toBe(1);
   });
 
+  it('blocks deleting a topic used by a single product', async () => {
+    usage.block('t-1', [{ productId: 'p-1', title: 'Lumen' }]);
+
+    await expect(deleteTopic.execute({ actor: admin, topicId: 't-1' })).rejects.toMatchObject({
+      code: 'TOPIC_IN_USE',
+      details: { total: 1 },
+    });
+  });
+
   it('rejects a non-admin', async () => {
     await expect(
       deleteTopic.execute({ actor: regularUser, topicId: 't-1' }),
