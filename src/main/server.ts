@@ -9,7 +9,7 @@ export async function startServer(): Promise<void> {
   const container = buildContainer(env);
   const { logger } = container;
 
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'development' && env.REPOSITORY_DRIVER === 'memory') {
     await seed(container);
     logger.info('in-memory data seeded; admin token: dev:dev-admin');
   }
@@ -17,7 +17,6 @@ export async function startServer(): Promise<void> {
   const app = createApp({
     logger,
     corsOrigin: container.corsOrigin,
-    filesDir: container.filesDir,
     registerRoutes: registerRoutes(container),
   });
 
@@ -25,7 +24,14 @@ export async function startServer(): Promise<void> {
     logger.info({ port: env.PORT }, 'API listening');
   });
 
-  process.on('SIGTERM', () => {
-    server.close(() => process.exit(0));
-  });
+  const shutdown = () => {
+    server.close(() => {
+      container
+        .shutdown()
+        .catch((error) => logger.error({ err: error }, 'shutdown failed'))
+        .finally(() => process.exit(0));
+    });
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }

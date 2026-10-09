@@ -12,7 +12,6 @@ import { healthRoutes } from './routes/health.routes';
 export interface AppOptions {
   logger?: Logger;
   corsOrigin?: string;
-  filesDir?: string;
   registerRoutes?: (app: Express) => void;
 }
 
@@ -30,16 +29,6 @@ export function createApp(options: AppOptions = {}): Express {
       },
     }),
   );
-  if (options.filesDir) {
-    app.use(
-      '/files',
-      (_req, res, next) => {
-        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-        next();
-      },
-      express.static(options.filesDir, { index: false, dotfiles: 'deny' }),
-    );
-  }
   app.use(healthRoutes());
   options.registerRoutes?.(app);
   app.use(notFound());

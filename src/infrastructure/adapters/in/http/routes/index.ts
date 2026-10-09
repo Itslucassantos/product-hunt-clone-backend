@@ -3,6 +3,8 @@ import type { Express } from 'express';
 import { AuthProvider } from '../../../../../application/ports/out/auth/auth-provider';
 import { SyncUserUseCase } from '../../../../../application/ports/in/users/sync-user';
 import { ProductsUseCases, productsController } from '../controllers/products.controller';
+import { imagesController } from '../controllers/images.controller';
+import { ImageQueries } from '../../../../../application/ports/out/products/image-queries';
 import { MeUseCases, meController } from '../controllers/me.controller';
 import { TopicsUseCases, topicsController } from '../controllers/topics.controller';
 import { uploadsController } from '../controllers/uploads.controller';
@@ -15,6 +17,7 @@ import { imageUpload } from '../middlewares/upload';
 export interface HttpDependencies {
   auth: AuthProvider;
   clerkWebhookSecret?: string;
+  imageQueries?: ImageQueries;
   useCases: ProductsUseCases &
     TopicsUseCases &
     MeUseCases & {
@@ -60,6 +63,10 @@ export function registerRoutes(deps: HttpDependencies): (app: Express) => void {
         '/webhooks/clerk',
         webhooksController(useCases.syncUser, deps.clerkWebhookSecret).clerk,
       );
+    }
+
+    if (deps.imageQueries) {
+      app.get('/files/:fileName', imagesController(deps.imageQueries).get);
     }
 
     app.use('/api', api);
