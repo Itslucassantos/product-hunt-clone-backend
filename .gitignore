@@ -1,0 +1,36 @@
+# Internal docs
+BACKEND.md
+FRONTEND.md
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Environment variables (keep .env.example versioned)
+.env
+.env.*
+!.env.example
+
+# Prisma generated client
+src/generated/
+
+# Tests and coverage
+coverage/
+.vitest-cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp

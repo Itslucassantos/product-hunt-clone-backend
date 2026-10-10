@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: product_hunt
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d product_hunt']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/product_hunt
+      REPOSITORY_DRIVER: prisma
+      CACHE_DRIVER: none
+      RATE_LIMIT_DRIVER: none
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    build:
+      context: .
+      target: runtime
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: development
+      PORT: 3333
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/product_hunt
+      REPOSITORY_DRIVER: prisma
+      REDIS_URL: redis://redis:6379
+      CACHE_DRIVER: redis
+      RATE_LIMIT_DRIVER: redis
+      METRICS_TOKEN: dev-metrics-token
+    ports:
+      - '3333:3333'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: ['monitoring']
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    ports:
+      - '9090:9090'
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    profiles: ['monitoring']
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafanadata:/var/lib/grafana
+    ports:
+      - '3001:3000'
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:
+  promdata:
+  grafanadata:
