@@ -81,6 +81,47 @@ describe('HTTP API on the prisma driver', () => {
     expect(response.body.error.code).toBe('TOPIC_IN_USE');
   });
 
+  describe('concurrent votes', () => {
+    it('counts one vote per distinct user', async () => {
+      await db.reset();
+      const { http } = buildTestApp({ REPOSITORY_DRIVER: 'prisma', DATABASE_URL: url });
+      const topicId = await createTopic(http, 'Concurrency');
+      const productId = await createProduct(http, [topicId]);
+
+      const responses = await Promise.all(
+        Array.from({ length: 12 }, (_, index) =>
+          http
+            .post(`/api/products/${productId}/vote`)
+            .set('Authorization', `Bearer dev:voter-${index}`),
+        ),
+      );
+
+      expect(responses.every((response) => response.status === 200)).toBe(true);
+      const product = await db.prisma.product.findUniqueOrThrow({ where: { id: productId } });
+      expect(product.upvotes).toBe(12);
+      expect(await db.prisma.vote.count({ where: { productId } })).toBe(12);
+    });
+
+    it('keeps the counter equal to the votes when one user toggles in parallel', async () => {
+      await db.reset();
+      const { http } = buildTestApp({ REPOSITORY_DRIVER: 'prisma', DATABASE_URL: url });
+      const topicId = await createTopic(http, 'Parallel');
+      const productId = await createProduct(http, [topicId]);
+
+      const responses = await Promise.all(
+        Array.from({ length: 10 }, () =>
+          http.post(`/api/products/${productId}/vote`).set('Authorization', USER),
+        ),
+      );
+
+      expect(responses.every((response) => response.status === 200)).toBe(true);
+      const product = await db.prisma.product.findUniqueOrThrow({ where: { id: productId } });
+      const votes = await db.prisma.vote.count({ where: { productId } });
+      expect(votes).toBeLessThanOrEqual(1);
+      expect(product.upvotes).toBe(votes);
+    });
+  });
+
   it('seeds only once', async () => {
     await db.reset();
     const container = buildContainer(

@@ -18,11 +18,16 @@ export class InMemoryVoteRepository implements VoteRepository {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
-  async save(vote: Vote): Promise<void> {
+  async save(vote: Vote): Promise<boolean> {
+    const duplicate = [...this.byId.values()].some(
+      (item) => item.userId === vote.userId && item.productId === vote.productId,
+    );
+    if (duplicate) return false;
     this.byId.set(vote.id, vote);
+    return true;
   }
 
-  async delete(id: string): Promise<void> {
-    this.byId.delete(id);
+  async delete(id: string): Promise<boolean> {
+    return this.byId.delete(id);
   }
 }

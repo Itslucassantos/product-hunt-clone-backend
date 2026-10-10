@@ -30,3 +30,26 @@ describe('ClerkAuthProvider', () => {
     );
   });
 });
+
+describe('ClerkAuthProvider failure reasons', () => {
+  it('reports an expired token as SESSION_EXPIRED', async () => {
+    const verifier = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error('x'), { reason: 'token-expired' }));
+
+    await expect(new ClerkAuthProvider(options, verifier).verify('jwt')).rejects.toMatchObject({
+      code: 'SESSION_EXPIRED',
+    });
+  });
+
+  it('logs the reason without exposing it', async () => {
+    const warn = vi.fn();
+    const verifier = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error('x'), { reason: 'token-invalid-signature' }));
+    const provider = new ClerkAuthProvider(options, verifier, { warn } as never);
+
+    await expect(provider.verify('jwt')).rejects.toMatchObject({ code: 'UNAUTHENTICATED' });
+    expect(warn).toHaveBeenCalledWith({ reason: 'token-invalid-signature' }, expect.any(String));
+  });
+});

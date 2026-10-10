@@ -17,7 +17,22 @@ jobs:
   quality:
     name: Quality checks
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shadow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -51,3 +66,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Check migrations match the Prisma schema
+        run: npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/product_hunt
+          SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/shadow
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=critical
+
+      - name: Build Docker image
+        run: docker build -t product-hunt-backend .

@@ -274,14 +274,16 @@ export function describeRepositoryContract(name: string, factory: HarnessFactory
         await h.users.save(User.create('u1', 'ext-1', NOW));
         await h.products.save(product('p1', 'One', ['t1']));
         await h.products.save(product('p2', 'Two', ['t1']));
-        await h.votes.save(Vote.create('v1', 'u1', 'p1', NOW));
-        await h.votes.save(Vote.create('v2', 'u1', 'p2', LATER));
+        expect(await h.votes.save(Vote.create('v1', 'u1', 'p1', NOW))).toBe(true);
+        expect(await h.votes.save(Vote.create('v2', 'u1', 'p2', LATER))).toBe(true);
+        expect(await h.votes.save(Vote.create('v3', 'u1', 'p1', LATER))).toBe(false);
 
         expect((await h.votes.findByUserAndProduct('u1', 'p1'))?.id).toBe('v1');
         expect(await h.votes.findByUserAndProduct('u1', 'p3')).toBeNull();
         expect(await h.userVotes.listProductIds('u1')).toEqual(['p2', 'p1']);
 
-        await h.votes.delete('v1');
+        expect(await h.votes.delete('v1')).toBe(true);
+        expect(await h.votes.delete('v1')).toBe(false);
         expect(await h.userVotes.listProductIds('u1')).toEqual(['p2']);
       });
     });

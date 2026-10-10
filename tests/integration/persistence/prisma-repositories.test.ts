@@ -75,12 +75,15 @@ describe('Prisma specifics', () => {
     await expect(products.save(product('p1', 'One', ['nope']))).rejects.toThrow();
   });
 
-  it('allows only one vote per user and product', async () => {
+  it('keeps a single vote per user and product and reports the duplicate', async () => {
     await users.save(User.create('u1', 'ext-1', NOW));
     await products.save(product('p1', 'One', ['t1']));
-    await votes.save(Vote.create('v1', 'u1', 'p1', NOW));
+    expect(await votes.save(Vote.create('v1', 'u1', 'p1', NOW))).toBe(true);
 
-    await expect(votes.save(Vote.create('v2', 'u1', 'p1', NOW))).rejects.toThrow();
+    expect(await votes.save(Vote.create('v2', 'u1', 'p1', NOW))).toBe(false);
+    expect(await db.prisma.vote.count()).toBe(1);
+    expect(await votes.delete('v1')).toBe(true);
+    expect(await votes.delete('v1')).toBe(false);
   });
 
   it('rejects a rating outside 1..5 and negative upvotes at the database level', async () => {

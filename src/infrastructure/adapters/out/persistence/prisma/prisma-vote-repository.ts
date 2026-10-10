@@ -12,21 +12,24 @@ export class PrismaVoteRepository implements VoteRepository {
     return row ? Vote.restore(row.id, row.userId, row.productId, row.createdAt) : null;
   }
 
-  async save(vote: Vote): Promise<void> {
-    await this.context.client.vote.upsert({
-      where: { id: vote.id },
-      create: {
-        id: vote.id,
-        userId: vote.userId,
-        productId: vote.productId,
-        createdAt: vote.createdAt,
-        updatedAt: vote.createdAt,
-      },
-      update: {},
+  async save(vote: Vote): Promise<boolean> {
+    const { count } = await this.context.client.vote.createMany({
+      data: [
+        {
+          id: vote.id,
+          userId: vote.userId,
+          productId: vote.productId,
+          createdAt: vote.createdAt,
+          updatedAt: vote.createdAt,
+        },
+      ],
+      skipDuplicates: true,
     });
+    return count === 1;
   }
 
-  async delete(id: string): Promise<void> {
-    await this.context.client.vote.deleteMany({ where: { id } });
+  async delete(id: string): Promise<boolean> {
+    const { count } = await this.context.client.vote.deleteMany({ where: { id } });
+    return count === 1;
   }
 }
