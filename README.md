@@ -2,11 +2,19 @@
 
 Express + Prisma (PostgreSQL) API with hexagonal architecture. Clerk handles authentication, Redis is an optional cache and rate-limit store, and product images live in PostgreSQL.
 
+## Run with Docker
+
+```bash
+docker compose up -d --build --wait   # PostgreSQL, Redis, migrations + seed, and the API on :3333
+```
+
+The `migrate` service applies migrations and the idempotent seed, then exits; the `api` service starts after it. If a `.env` exists it is also loaded by the API, so `CLERK_SECRET_KEY` there turns on Clerk auth. Leave it empty to use the `dev:` tokens below.
+
 ## Run locally
 
 ```bash
 cp .env.example .env
-docker compose up -d --wait      # PostgreSQL and Redis
+docker compose up -d --wait postgres redis   # only PostgreSQL and Redis
 npm install
 npx prisma migrate dev
 npx prisma db seed               # topics and products for development

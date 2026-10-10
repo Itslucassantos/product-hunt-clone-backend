@@ -11,6 +11,9 @@ COPY src ./src
 RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate \
   && npm run build
 
+FROM build AS migrate
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed"]
+
 FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
