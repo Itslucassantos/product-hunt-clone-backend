@@ -10,6 +10,20 @@ const idList = z
       .filter(Boolean),
   );
 
+type Driver = 'redis' | 'memory' | 'none';
+
+function resolveDrivers(env: {
+  NODE_ENV: 'development' | 'test' | 'production';
+  CACHE_DRIVER?: Driver;
+  RATE_LIMIT_DRIVER?: Driver;
+}): { cache: Driver; rateLimit: Driver } {
+  const defaultCache: Driver =
+    env.NODE_ENV === 'production' ? 'redis' : env.NODE_ENV === 'test' ? 'none' : 'memory';
+  const cache = env.CACHE_DRIVER ?? defaultCache;
+  const rateLimit = env.RATE_LIMIT_DRIVER ?? (cache === 'redis' ? 'redis' : 'memory');
+  return { cache, rateLimit };
+}
+
 const schema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -26,6 +40,15 @@ const schema = z
     CLERK_AUTHORIZED_PARTIES: idList,
     CLERK_WEBHOOK_SECRET: z.string().optional(),
     ADMIN_EXTERNAL_IDS: idList,
+    CACHE_DRIVER: z.enum(['redis', 'memory', 'none']).optional(),
+    RATE_LIMIT_DRIVER: z.enum(['redis', 'memory', 'none']).optional(),
+    REDIS_URL: z.string().optional(),
+    CACHE_TTL_PRODUCT_LIST: z.coerce.number().int().min(1).default(15),
+    CACHE_TTL_PRODUCT_DETAIL: z.coerce.number().int().min(1).default(30),
+    CACHE_TTL_TOPICS: z.coerce.number().int().min(1).default(60),
+    TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+    METRICS_TOKEN: z.string().optional(),
+    SENTRY_DSN: z.string().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.REPOSITORY_DRIVER === 'prisma' && !env.DATABASE_URL) {
@@ -51,6 +74,18 @@ const schema = z
         });
       }
     }
+    const drivers = resolveDrivers(env);
+    if ((drivers.cache === 'redis' || drivers.rateLimit === 'redis') && !env.REDIS_URL) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message: 'required when the cache or rate limit driver is redis',
+      });
+    }
+  })
+  .transform((env) => {
+    const drivers = resolveDrivers(env);
+    return { ...env, CACHE_DRIVER: drivers.cache, RATE_LIMIT_DRIVER: drivers.rateLimit };
   });
 
 export type Env = z.infer<typeof schema>;

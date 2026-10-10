@@ -33,7 +33,7 @@ export async function startTestDatabase(): Promise<TestDatabase> {
     prisma,
     async reset() {
       await prisma.$executeRawUnsafe(
-        'TRUNCATE TABLE "Vote", "Review", "TopicTranslation", "Topic", "Product", "User" CASCADE',
+        'TRUNCATE TABLE "Vote", "Review", "TopicTranslation", "Topic", "Product", "User", "ProductImage" CASCADE',
       );
     },
     async stop() {

@@ -25,22 +25,27 @@ export class ToggleVote implements ToggleVoteUseCase {
 
   async execute(input: ToggleVoteInput): Promise<ToggleVoteOutput> {
     const output = await this.uow.run(async () => {
-      const product = await this.products.findById(input.productId);
-      if (!product) throw new ProductNotFoundError(input.productId);
+      const found = await this.products.findById(input.productId);
+      if (!found) throw new ProductNotFoundError(input.productId);
 
-      const existing = await this.votes.findByUserAndProduct(input.userId, product.id);
+      const existing = await this.votes.findByUserAndProduct(input.userId, found.id);
+      let changed: 'added' | 'removed' | null = null;
       if (existing) {
-        await this.votes.delete(existing.id);
-        product.removeUpvote();
+        if (await this.votes.delete(existing.id)) changed = 'removed';
       } else {
-        if (!product.isVotable()) throw new ProductNotVotableError(product.id);
-        await this.votes.save(
-          Vote.create(this.ids.next(), input.userId, product.id, this.clock.now()),
+        if (!found.isVotable()) throw new ProductNotVotableError(found.id);
+        const created = await this.votes.save(
+          Vote.create(this.ids.next(), input.userId, found.id, this.clock.now()),
         );
-        product.addUpvote();
+        if (created) changed = 'added';
       }
 
+      const product = await this.products.findById(found.id);
+      if (!product) throw new ProductNotFoundError(found.id);
+      if (changed === 'added') product.addUpvote();
+      if (changed === 'removed') product.removeUpvote();
       await this.products.save(product);
+
       return { upvotes: product.upvotes, voted: !existing };
     });
 

@@ -50,12 +50,26 @@ function zodFieldErrors(error: ZodError) {
   return error.issues.map((issue) => ({ field: issue.path.join('.'), code: zodFieldCode(issue) }));
 }
 
-export function errorHandler(logger: Logger): ErrorRequestHandler {
+export interface ErrorHooks {
+  onError?(info: { code: ErrorCode; status: number; err: unknown; requestId?: string }): void;
+}
+
+export function errorHandler(logger: Logger, hooks: ErrorHooks = {}): ErrorRequestHandler {
   return (err, req, res, next) => {
     if (res.headersSent) {
       next(err);
       return;
     }
+
+    const fail = (code: ErrorCode, message: string, details?: unknown): void => {
+      hooks.onError?.({
+        code,
+        status: ERROR_CATALOG[code],
+        err,
+        requestId: res.locals.requestId,
+      });
+      sendError(res, code, message, details);
+    };
 
     const context = { requestId: res.locals.requestId, method: req.method, route: req.path };
 
@@ -64,13 +78,13 @@ export function errorHandler(logger: Logger): ErrorRequestHandler {
       const status = statusFor(err.code);
       if (status >= 500) logger.error({ ...context, err }, err.message);
       else logger.warn({ ...context, code }, err.message);
-      sendError(res, code, err.message, err.details);
+      fail(code, err.message, err.details);
       return;
     }
 
     if (err instanceof ZodError) {
       logger.warn({ ...context, code: 'VALIDATION_ERROR' }, 'validation failed');
-      sendError(res, 'VALIDATION_ERROR', 'Request validation failed', zodFieldErrors(err));
+      fail('VALIDATION_ERROR', 'Request validation failed', zodFieldErrors(err));
       return;
     }
 
@@ -78,21 +92,21 @@ export function errorHandler(logger: Logger): ErrorRequestHandler {
       if (err.code === 'LIMIT_FILE_SIZE') {
         const tooLarge = new ImageTooLargeError(MAX_PRODUCT_IMAGE_BYTES);
         logger.warn({ ...context, code: tooLarge.code }, tooLarge.message);
-        sendError(res, 'IMAGE_TOO_LARGE', tooLarge.message, tooLarge.details);
+        fail('IMAGE_TOO_LARGE', tooLarge.message, tooLarge.details);
         return;
       }
       logger.warn({ ...context, code: 'MALFORMED_REQUEST' }, err.message);
-      sendError(res, 'MALFORMED_REQUEST', 'Malformed request');
+      fail('MALFORMED_REQUEST', 'Malformed request');
       return;
     }
 
     if (isMalformedBody(err)) {
       logger.warn({ ...context, code: 'MALFORMED_REQUEST' }, 'malformed request');
-      sendError(res, 'MALFORMED_REQUEST', 'Malformed request');
+      fail('MALFORMED_REQUEST', 'Malformed request');
       return;
     }
 
     logger.error({ ...context, err }, 'unexpected error');
-    sendError(res, 'INTERNAL_ERROR', 'Internal server error');
+    fail('INTERNAL_ERROR', 'Internal server error');
   };
 }

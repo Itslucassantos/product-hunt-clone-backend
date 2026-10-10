@@ -4,7 +4,16 @@ const boundaries = require('eslint-plugin-boundaries');
 const prettier = require('eslint-config-prettier');
 
 module.exports = tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'uploads/**', 'src/generated/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      'uploads/**',
+      'src/generated/**',
+      'tests/load/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettier,

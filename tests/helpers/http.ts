@@ -11,7 +11,14 @@ export function buildTestApp(overrides: Record<string, string> = {}) {
   const container = buildContainer(
     loadEnv({ NODE_ENV: 'test', LOG_LEVEL: process.env.TEST_LOG ?? 'silent', ...overrides }),
   );
-  const app = createApp({ logger: container.logger, registerRoutes: registerRoutes(container) });
+  const app = createApp({
+    logger: container.logger,
+    trustProxy: container.trustProxy,
+    healthChecks: container.healthChecks,
+    requestMetrics: container.requestMetrics,
+    errorHooks: container.errorHooks,
+    registerRoutes: registerRoutes(container),
+  });
   return { app, http: request(app) };
 }
 
