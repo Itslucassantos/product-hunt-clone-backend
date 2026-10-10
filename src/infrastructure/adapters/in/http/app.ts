@@ -44,6 +44,6 @@ export function createApp(options: AppOptions = {}): Express {
   options.registerRoutes?.(app);
   app.use(notFound());
   app.use(errorHandler(logger, options.errorHooks));
-  
+
   return app;
 }
