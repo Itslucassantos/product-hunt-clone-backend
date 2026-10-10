@@ -1,4 +1,4 @@
-FROM node:24-slim AS build
+FROM node:25-slim AS build
 WORKDIR /app
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
@@ -14,7 +14,7 @@ RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma genera
 FROM build AS migrate
 CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed"]
 
-FROM node:24-slim AS runtime
+FROM node:25-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update \
