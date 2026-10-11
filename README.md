@@ -59,7 +59,7 @@ The API is written in **TypeScript** on **Node.js 24**, built with **Express 5**
 | Uploads           | multer (in memory), image type checked by file signature                    |
 | Tests             | Vitest, supertest, Testcontainers (PostgreSQL and Redis), k6 for load tests |
 | Code quality      | ESLint with `eslint-plugin-boundaries`, Prettier, Husky and lint-staged     |
-| Containers and CI | Docker (multi-stage), Docker Compose, GitHub Actions, Dependabot            |
+| Containers and CI | Docker (multi-stage), Docker Compose, GitHub Actions                        |
 
 ## Architecture
 
@@ -538,8 +538,6 @@ The GitHub Actions workflow in `.github/workflows/ci.yaml` runs these steps:
 5. Verify that `prisma/migrations` matches `schema.prisma`.
 6. Audit production dependencies with `npm audit`.
 7. Build the Docker image.
-
-Dependabot keeps npm packages and GitHub Actions up to date.
 
 ## Deploying to production
 
