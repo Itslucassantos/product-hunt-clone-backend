@@ -4,6 +4,10 @@ REST API for a Product Hunt style website: people browse products ranked by upvo
 
 The API is written in **TypeScript** on **Node.js 24**, built with **Express 5** and **Prisma 7** over **PostgreSQL**, uses **Redis** as an optional cache and rate-limit store, and delegates authentication to **Clerk**. The code follows a **hexagonal (ports and adapters) architecture**, enforced by lint rules.
 
+The frontend of this project lives in a separate repository: [product-hunt-clone-front-end](https://github.com/Itslucassantos/product-hunt-clone-front-end).
+
+🎥 Project walkthrough video: [Watch on Google Drive](https://drive.google.com/file/d/1l5RupI_AJk0IOCgaUTkh2DUqEVefegto/view?usp=drive_link)
+
 ## Table of contents
 
 1. [Features](#features)
